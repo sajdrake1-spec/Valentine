@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? 💕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffa4c8 0%, #ff6b9d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 60px 80px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #ff1744;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #funnyText {
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 20px;
+            min-height: 30px;
+            font-style: italic;
+        }
+
+        .heart {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            position: relative;
+            min-height: 60px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #yesBtn {
+            background: linear-gradient(135deg, #ff1744 0%, #ff6b9d 100%);
+            color: white;
+        }
+
+        #noBtn {
+            background: linear-gradient(135deg, #9e9e9e 0%, #616161 100%);
+            color: white;
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+
+        .celebration {
+            display: none;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff1744;
+            position: absolute;
+            animation: fall 3s linear;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="heart">❤️</div>
+        <h1>Name, will you be my Valentine?</h1>
+        <p id="funnyText"></p>
+        
+        <div class="buttons">
+            <button id="yesBtn">Yes! 💕</button>
+            <button id="noBtn">No</button>
+        </div>
+
+        <div class="celebration" id="celebration">
+            <h2 style="color: #ff1744; font-size: 2em; margin-top: 30px;">
+                Yay! You made me the happiest! 🎉💕
+            </h2>
+        </div>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const celebration = document.getElementById('celebration');
+        const container = document.querySelector('.container');
+        const funnyText = document.getElementById('funnyText');
+        
+        let attemptCount = 0;
+        let yesBtnScale = 1;
+
+        const funnyMessages = [
+            "Wait... think about this! 🤔",
+            "Are you sure about that? 😅",
+            "The No button is broken! 🔧",
+            "Come on, you know you want to say yes! 💕",
+            "I'll take that as a maybe? 🥺",
+            "The No button has left the chat 💨",
+            "Why are you running from love? 😢",
+            "Just click Yes already! 😂",
+            "I see what you're doing... 👀",
+            "The Yes button is looking pretty good right now 😉",
+            "This is harder than it needs to be! 😆",
+            "Fine, I'll make the Yes button bigger! ⬆️"
+        ];
+
+        // Function to send notification - CONFIGURE THIS WITH YOUR DETAILS
+        async function sendNotification(action) {
+            const timestamp = new Date().toLocaleString();
+            const message = `Valentine Alert: ${action} at ${timestamp}`;
+            
+            console.log(message); // Always log to console
+            
+            // OPTION 1: Send to a webhook (Discord, Slack, etc.)
+            // Uncomment and add your webhook URL
+            /*
+            try {
+                await fetch('YOUR_WEBHOOK_URL_HERE', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: message,
+                        content: message
+                    })
+                });
+            } catch (error) {
+                console.error('Notification failed:', error);
+            }
+            */
+            
+            // OPTION 2: Send to your own server endpoint
+            // Uncomment and add your server URL
+            /*
+            try {
+                await fetch('https://your-server.com/valentine-alert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: action,
+                        timestamp: timestamp
+                    })
+                });
+            } catch (error) {
+                console.error('Notification failed:', error);
+            }
+            */
+            
+            // OPTION 3: Send email via a service like EmailJS
+            // You'll need to include EmailJS library and configure it
+            /*
+            emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+                message: message,
+                action: action
+            });
+            */
+        }
+
+        // Track mouse movement to make No button run away
+        document.addEventListener('mousemove', (e) => {
+            if (celebration.style.display === 'block') return;
+            
+            const noBtnRect = noBtn.getBoundingClientRect();
+            const noBtnCenterX = noBtnRect.left + noBtnRect.width / 2;
+            const noBtnCenterY = noBtnRect.top + noBtnRect.height / 2;
+            
+            const distance = Math.sqrt(
+                Math.pow(e.clientX - noBtnCenterX, 2) + 
+                Math.pow(e.clientY - noBtnCenterY, 2)
+            );
+            
+            // If cursor is within 100px of the button, make it run away
+            if (distance < 100) {
+                moveNoButton();
+            }
+        });
+
+        noBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            moveNoButton();
+        });
+
+        function moveNoButton() {
+            attemptCount++;
+            
+            // Send notification about No button attempt
+            sendNotification(`She tried to click NO (Attempt #${attemptCount})`);
+            
+            // Show funny message
+            if (attemptCount <= funnyMessages.length) {
+                funnyText.textContent = funnyMessages[attemptCount - 1];
+            }
+            
+            // Make Yes button bigger every 3 attempts
+            if (attemptCount % 3 === 0) {
+                yesBtnScale += 0.2;
+                yesBtn.style.transform = `scale(${yesBtnScale})`;
+            }
+            
+            const containerRect = container.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
+            const yesBtnRect = yesBtn.getBoundingClientRect();
+            
+            let randomX, randomY;
+            let attempts = 0;
+            let tooClose = true;
+            
+            // Keep trying positions until we find one that doesn't overlap with Yes button
+            while (tooClose && attempts < 50) {
+                attempts++;
+                
+                // Generate random position with wider range
+                randomX = (Math.random() - 0.5) * 300;
+                randomY = (Math.random() - 0.5) * 250;
+                
+                // Calculate where No button would be
+                const noBtnNewX = btnRect.left + randomX;
+                const noBtnNewY = btnRect.top + randomY;
+                
+                // Check if it would overlap with Yes button (with safety margin of 150px)
+                const distance = Math.sqrt(
+                    Math.pow(noBtnNewX - yesBtnRect.left, 2) + 
+                    Math.pow(noBtnNewY - yesBtnRect.top, 2)
+                );
+                
+                if (distance > 150) {
+                    tooClose = false;
+                }
+            }
+            
+            noBtn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+            
+            // Add a little shake animation to the No button
+            noBtn.style.animation = 'none';
+            setTimeout(() => {
+                noBtn.style.animation = 'shake 0.5s';
+            }, 10);
+        }
+
+        // Yes button celebration
+        yesBtn.addEventListener('click', () => {
+            // Send notification that she said YES!
+            sendNotification('She said YES! 💕🎉');
+            
+            celebration.style.display = 'block';
+            funnyText.style.display = 'none';
+            yesBtn.style.display = 'none';
+            noBtn.style.display = 'none';
+            createConfetti();
+        });
+
+        function createConfetti() {
+            const colors = ['#ff1744', '#ff6b9d', '#ffa4c8', '#ff4081', '#f50057'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+    </script>
+</body>
+</html>
